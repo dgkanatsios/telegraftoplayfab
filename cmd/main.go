@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 
-	_ "github.com/dgkanatsios/playfabtodatainsights/plugins/outputs/playfab_data_insights"
+	_ "github.com/dgkanatsios/telegraftoplayfabinsights/plugins/outputs/playfab_insights"
 
 	"github.com/influxdata/telegraf/plugins/common/shim"
 )
