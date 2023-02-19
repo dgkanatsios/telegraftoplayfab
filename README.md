@@ -1,0 +1,1 @@
+# PlayFab Data Insights output plugin for Telegraf
