@@ -3,7 +3,7 @@ module github.com/dgkanatsios/telegraftoplayfabinsights
 go 1.20
 
 require (
-	github.com/dgkanatsios/playfabsdk-go/sdk v0.0.0-20230219011534-aefa400f1f70
+	github.com/dgkanatsios/playfabsdk-go v0.0.0-20230219032636-8cdd198945a2
 	github.com/influxdata/telegraf v1.25.2
 	gotest.tools/v3 v3.0.3
 )

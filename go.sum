@@ -251,8 +251,8 @@ github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/denisenkom/go-mssqldb v0.12.3 h1:pBSGx9Tq67pBOTLmxNuirNTeB8Vjmf886Kx+8Y+8shw=
 github.com/devigned/tab v0.1.1 h1:3mD6Kb1mUOYeLpJvTVSDwSg5ZsfSxfvxGRTxRsJsITA=
-github.com/dgkanatsios/playfabsdk-go/sdk v0.0.0-20230219011534-aefa400f1f70 h1:O5lPm815eMncVnqRsLs0i69rziJO5MpWkVuKrY07Ua8=
-github.com/dgkanatsios/playfabsdk-go/sdk v0.0.0-20230219011534-aefa400f1f70/go.mod h1:Ka5lgDUB5n8SugusK2xU/M9bcvITzgUN1h/iXcHZC4Y=
+github.com/dgkanatsios/playfabsdk-go v0.0.0-20230219032636-8cdd198945a2 h1:PbMN/YV8lYe+C1xtrQ8v3L/5e2J6JBXauc6f29ZoOeI=
+github.com/dgkanatsios/playfabsdk-go v0.0.0-20230219032636-8cdd198945a2/go.mod h1:qixHmqkwqbyOXwBxtbNElCgT7KvTnJfBMgVlmVjAWqE=
 github.com/dgrijalva/jwt-go v3.2.0+incompatible/go.mod h1:E3ru+11k8xSBh+hMPgOLZmtrrCbhqsmaPHjLKYnJCaQ=
 github.com/dgryski/go-bitstream v0.0.0-20180413035011-3522498ce2c8/go.mod h1:VMaSuZ+SZcx/wljOQKvp5srsbCiKDEb6K2wC4+PiBmQ=
 github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f h1:lO4WD4F/rVNCu3HqELle0jiPLLBs70cWOduZpkS1E78=
