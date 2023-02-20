@@ -3,6 +3,7 @@ package playfab_insights
 
 import (
 	_ "embed"
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -70,26 +71,29 @@ func (p *PlayFabInsights) Connect() error {
 func (p *PlayFabInsights) Write(metrics []telegraf.Metric) error {
 	eventsToSend := make([]events.EventContentsModel, 0)
 	for _, metric := range metrics {
-		for _, field := range metric.FieldList() {
-			eventToSend := events.EventContentsModel{
-				CustomTags:        metric.Tags(),
-				EventNamespace:    p.EventNamespace,
-				Name:              fmt.Sprintf("%s_%s", metric.Name(), field.Key),
-				Payload:           fmt.Sprintf("%v", field.Value),
-				OriginalTimestamp: time.Now().UTC(),
-			}
-			eventsToSend = append(eventsToSend, eventToSend)
+		// marshal the entire payload (fields names and keys into JSON)
+		payloadBytes, err := json.Marshal(metric.Fields())
+		if err != nil {
+			return err
 		}
+
+		// create the event to send to PlayFab Insights
+		eventToSend := events.EventContentsModel{
+			CustomTags:        metric.Tags(),
+			EventNamespace:    p.EventNamespace,
+			Name:              metric.Name(),
+			PayloadJSON:       string(payloadBytes),
+			OriginalTimestamp: time.Now().UTC(),
+		}
+		//p.Log.Debugf("Gathering eventToSend %#v\n", eventToSend)
+		eventsToSend = append(eventsToSend, eventToSend)
 	}
 	postData := &events.WriteEventsRequestModel{
 		Events: eventsToSend,
 	}
 	settings := playfab.NewSettingsWithDefaultOptions(p.TitleId)
 	_, err := events.WriteTelemetryEvents(settings, postData, p.entityToken)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 // Close is a no-op for this plugin
