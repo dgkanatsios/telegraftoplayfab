@@ -82,7 +82,8 @@ func (p *PlayFabInsights) Write(metrics []telegraf.Metric) error {
 		// marshal the entire payload (fields names and keys into JSON)
 		payloadBytes, err := json.Marshal(metric.Fields())
 		if err != nil {
-			return err
+			log.Printf("E! Error marshalling metric fields to JSON: %v", metric.Fields())
+			continue
 		}
 
 		// create the event to send to PlayFab Insights
