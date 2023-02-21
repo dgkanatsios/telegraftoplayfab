@@ -10,7 +10,7 @@ This plugin uses the [Go PlayFab SDK](https://github.com/dgkanatsios/playfabsdk-
 
 ## Usage
 
-This plugin is meant to be used with Telegraf agent, so you should grab the binary for your platform and architecture from the [releases page](https://github.com/influxdata/telegraf/releases).
+This plugin is meant to be used with Telegraf agent, so you should grab the Telegraf binary for your platform and architecture from the [Telegraf releases page](https://github.com/influxdata/telegraf/releases). You should also download the plugin from this [repo's releases page](https://github.com/dgkanatsios/telegraftoplayfabinsights/releases).
 
 On the Telegraf configuration file `telegraf.conf` you should configure the execd output plugin like this:
 
