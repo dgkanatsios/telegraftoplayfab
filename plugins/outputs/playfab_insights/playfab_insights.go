@@ -5,6 +5,7 @@ import (
 	_ "embed"
 	"encoding/json"
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -24,10 +25,10 @@ var sampleConfig string
 
 // PlayFabInsights is the top level struct for this plugin.
 type PlayFabInsights struct {
-	Log                telegraf.Logger `toml:"-"`
-	TitleId            string          `json:"titleId"`
-	DeveloperSecretKey string          `json:"developerSecretKey"`
-	EventNamespace     string          `json:"eventNamespace"`
+	TitleId            string `toml:"titleId"`
+	DeveloperSecretKey string `toml:"developerSecretKey"`
+	EventNamespace     string `toml:"eventNamespace"`
+	Debug              bool   `toml:"debug"`
 	entityToken        string
 }
 
@@ -52,6 +53,10 @@ func (p *PlayFabInsights) Init() error {
 		return fmt.Errorf("eventNamespace must start with %s followed by a dot (.)", defaultNamespace)
 	}
 
+	if p.Debug {
+		log.Println("PlayFab Insights: Successfully initialized")
+	}
+
 	return nil
 }
 
@@ -64,6 +69,9 @@ func (p *PlayFabInsights) Connect() error {
 		return err
 	}
 	p.entityToken = r.EntityToken
+	if p.Debug {
+		log.Println("PlayFab Insights: Successfully connected to PlayFab Insights")
+	}
 	return nil
 }
 
@@ -85,21 +93,31 @@ func (p *PlayFabInsights) Write(metrics []telegraf.Metric) error {
 			PayloadJSON:       string(payloadBytes),
 			OriginalTimestamp: time.Now().UTC(),
 		}
-		//p.Log.Debugf("Gathering eventToSend %#v\n", eventToSend)
+		if p.Debug {
+			log.Printf("Gathering eventToSend %#v\n", eventToSend)
+		}
+
 		eventsToSend = append(eventsToSend, eventToSend)
 	}
+
 	postData := &events.WriteEventsRequestModel{
 		Events: eventsToSend,
 	}
+
 	settings := playfab.NewSettingsWithDefaultOptions(p.TitleId)
 	_, err := events.WriteTelemetryEvents(settings, postData, p.entityToken)
-	return err
+
+	if err != nil {
+		return err
+	}
+	if p.Debug {
+		log.Println("PlayFab Insights: Successfully sent events to PlayFab Insights")
+	}
+	return nil
 }
 
 // Close is a no-op for this plugin
 func (p *PlayFabInsights) Close() error {
-	// Close any connections here.
-	// Write will not be called once Close is called, so there is no need to synchronize.
 	return nil
 }
 
