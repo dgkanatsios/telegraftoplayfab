@@ -1,4 +1,4 @@
-package playfab_insights
+package playfab
 
 import (
 	"testing"
@@ -7,13 +7,13 @@ import (
 )
 
 func TestInit(t *testing.T) {
-	p := &PlayFabInsights{}
+	p := &PlayFab{}
 	err := p.Init()
-	assert.Error(t, err, "titleId is a required field for playfab_insights output")
+	assert.Error(t, err, "titleId is a required field for playfab output")
 
 	p.TitleId = "test"
 	err = p.Init()
-	assert.Error(t, err, "developerSecretKey is a required field for playfab_insights output")
+	assert.Error(t, err, "developerSecretKey is a required field for playfab output")
 
 	p.DeveloperSecretKey = "test"
 	err = p.Init()

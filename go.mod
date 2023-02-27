@@ -1,4 +1,4 @@
-module github.com/dgkanatsios/telegraftoplayfabinsights
+module github.com/dgkanatsios/telegraftoplayfab
 
 go 1.20
 

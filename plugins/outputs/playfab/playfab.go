@@ -1,5 +1,5 @@
 //go:generate ../../../tools/readme_config_includer/generator
-package playfab_insights
+package playfab
 
 import (
 	_ "embed"
@@ -23,8 +23,8 @@ const (
 //go:embed sample.conf
 var sampleConfig string
 
-// PlayFabInsights is the top level struct for this plugin.
-type PlayFabInsights struct {
+// PlayFab is the top level struct for this plugin.
+type PlayFab struct {
 	TitleId            string `toml:"titleId"`
 	DeveloperSecretKey string `toml:"developerSecretKey"`
 	EventNamespace     string `toml:"eventNamespace"`
@@ -33,18 +33,18 @@ type PlayFabInsights struct {
 }
 
 // SampleConfig returns the sample config for this plugin
-func (*PlayFabInsights) SampleConfig() string {
+func (*PlayFab) SampleConfig() string {
 	return sampleConfig
 }
 
 // Init is for setup, and validating config
-func (p *PlayFabInsights) Init() error {
+func (p *PlayFab) Init() error {
 	if p.TitleId == "" {
-		return fmt.Errorf("titleId is a required field for playfab_insights output")
+		return fmt.Errorf("titleId is a required field for playfab output")
 	}
 
 	if p.DeveloperSecretKey == "" {
-		return fmt.Errorf("developerSecretKey is a required field for playfab_insights output")
+		return fmt.Errorf("developerSecretKey is a required field for playfab output")
 	}
 
 	if p.EventNamespace == "" {
@@ -54,14 +54,14 @@ func (p *PlayFabInsights) Init() error {
 	}
 
 	if p.Debug {
-		log.Println("PlayFab Insights: Successfully initialized")
+		log.Println("Successfully initialized PlayFab output plugin")
 	}
 
 	return nil
 }
 
 // Connect tries to connect to PlayFab and get an EntityToken
-func (p *PlayFabInsights) Connect() error {
+func (p *PlayFab) Connect() error {
 	settings := playfab.NewSettingsWithDefaultOptions(p.TitleId)
 	postData := &authentication.GetEntityTokenRequestModel{}
 	r, err := authentication.GetEntityToken(settings, postData, "", "", p.DeveloperSecretKey)
@@ -70,13 +70,13 @@ func (p *PlayFabInsights) Connect() error {
 	}
 	p.entityToken = r.EntityToken
 	if p.Debug {
-		log.Println("PlayFab Insights: Successfully connected to PlayFab Insights")
+		log.Println("Successfully connected to PlayFab")
 	}
 	return nil
 }
 
-// Write writes metrics to PlayFab Insights
-func (p *PlayFabInsights) Write(metrics []telegraf.Metric) error {
+// Write writes metrics to PlayFab
+func (p *PlayFab) Write(metrics []telegraf.Metric) error {
 	eventsToSend := make([]events.EventContentsModel, 0)
 	for _, metric := range metrics {
 		// marshal the entire payload (fields names and keys into JSON)
@@ -86,7 +86,7 @@ func (p *PlayFabInsights) Write(metrics []telegraf.Metric) error {
 			continue
 		}
 
-		// create the event to send to PlayFab Insights
+		// create the event to send to PlayFab
 		eventToSend := events.EventContentsModel{
 			CustomTags:        metric.Tags(),
 			EventNamespace:    p.EventNamespace,
@@ -112,16 +112,16 @@ func (p *PlayFabInsights) Write(metrics []telegraf.Metric) error {
 		return err
 	}
 	if p.Debug {
-		log.Println("PlayFab Insights: Successfully sent events to PlayFab Insights")
+		log.Println("Successfully sent events to PlayFab")
 	}
 	return nil
 }
 
 // Close is a no-op for this plugin
-func (p *PlayFabInsights) Close() error {
+func (p *PlayFab) Close() error {
 	return nil
 }
 
 func init() {
-	outputs.Add("playfab_insights", func() telegraf.Output { return &PlayFabInsights{} })
+	outputs.Add("playfab", func() telegraf.Output { return &PlayFab{} })
 }
