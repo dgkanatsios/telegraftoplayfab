@@ -13,9 +13,15 @@ func TestInit(t *testing.T) {
 
 	p.TitleId = "test"
 	err = p.Init()
-	assert.Error(t, err, "developerSecretKey is a required field for playfab output")
+	assert.Error(t, err, errDeveloperSecretKeyOrTelemetryKey)
 
 	p.DeveloperSecretKey = "test"
+	p.TelemetryKey = "lala"
+	err = p.Init()
+	assert.Error(t, err, errNotDeveloperSecretKeyAndTelemetryKey)
+
+	p.DeveloperSecretKey = "test"
+	p.TelemetryKey = ""
 	err = p.Init()
 	assert.NilError(t, err)
 	assert.Equal(t, p.EventNamespace, defaultNamespace)

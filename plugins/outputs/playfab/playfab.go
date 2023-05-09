@@ -17,7 +17,9 @@ import (
 )
 
 const (
-	defaultNamespace = "custom"
+	defaultNamespace                        = "custom"
+	errDeveloperSecretKeyOrTelemetryKey     = "you need to provide either a DeveloperSecretKey or a TelemetryKey for playfab_insights output"
+	errNotDeveloperSecretKeyAndTelemetryKey = "you cannot provide both a DeveloperSecretKey or a TelemetryKey for playfab_insights output"
 )
 
 //go:embed sample.conf
@@ -28,8 +30,10 @@ type PlayFab struct {
 	TitleId            string `toml:"titleId"`
 	DeveloperSecretKey string `toml:"developerSecretKey"`
 	EventNamespace     string `toml:"eventNamespace"`
+	TelemetryKey       string `toml:"telemetryKey"`
 	Debug              bool   `toml:"debug"`
-	entityToken        string
+	// authKey will contain either the EntityToken or the TelemetryKey
+	authKey string
 }
 
 // SampleConfig returns the sample config for this plugin
@@ -43,8 +47,12 @@ func (p *PlayFab) Init() error {
 		return fmt.Errorf("titleId is a required field for playfab output")
 	}
 
-	if p.DeveloperSecretKey == "" {
-		return fmt.Errorf("developerSecretKey is a required field for playfab output")
+	if p.DeveloperSecretKey == "" && p.TelemetryKey == "" {
+		return fmt.Errorf(errDeveloperSecretKeyOrTelemetryKey)
+	}
+
+	if p.DeveloperSecretKey != "" && p.TelemetryKey != "" {
+		return fmt.Errorf(errNotDeveloperSecretKeyAndTelemetryKey)
 	}
 
 	if p.EventNamespace == "" {
@@ -61,16 +69,26 @@ func (p *PlayFab) Init() error {
 }
 
 // Connect tries to connect to PlayFab and get an EntityToken
+// unless the user is using the TelemetryKey so it's a no-op
 func (p *PlayFab) Connect() error {
+	if p.TelemetryKey != "" {
+		if p.Debug {
+			log.Println("WriteTelemetryEvents API will use the TelemetryKey")
+		}
+		p.authKey = p.TelemetryKey
+		return nil
+	}
+
 	settings := playfab.NewSettingsWithDefaultOptions(p.TitleId)
 	postData := &authentication.GetEntityTokenRequestModel{}
 	r, err := authentication.GetEntityToken(settings, postData, "", "", p.DeveloperSecretKey)
 	if err != nil {
 		return err
 	}
-	p.entityToken = r.EntityToken
+
+	p.authKey = r.EntityToken
 	if p.Debug {
-		log.Println("Successfully connected to PlayFab")
+		log.Println("Successfully connected to PlayFab and acquired EntityToken")
 	}
 	return nil
 }
@@ -106,7 +124,7 @@ func (p *PlayFab) Write(metrics []telegraf.Metric) error {
 	}
 
 	settings := playfab.NewSettingsWithDefaultOptions(p.TitleId)
-	_, err := events.WriteTelemetryEvents(settings, postData, p.entityToken)
+	_, err := events.WriteTelemetryEvents(settings, postData, p.authKey)
 
 	if err != nil {
 		return err
