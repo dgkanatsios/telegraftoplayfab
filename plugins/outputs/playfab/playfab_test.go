@@ -1,6 +1,7 @@
 package playfab
 
 import (
+	"fmt"
 	"testing"
 
 	"gotest.tools/v3/assert"
@@ -9,7 +10,7 @@ import (
 func TestInit(t *testing.T) {
 	p := &PlayFab{}
 	err := p.Init()
-	assert.Error(t, err, "titleId is a required field for playfab output")
+	assert.Error(t, err, errTitleIdRequired)
 
 	p.TitleId = "test"
 	err = p.Init()
@@ -28,11 +29,11 @@ func TestInit(t *testing.T) {
 
 	p.EventNamespace = "telegraf"
 	err = p.Init()
-	assert.Error(t, err, "eventNamespace must start with custom followed by a dot (.)")
+	assert.Error(t, err, fmt.Sprintf(errEventNamespace, defaultNamespace))
 
 	p.EventNamespace = "custom_telegraf"
 	err = p.Init()
-	assert.Error(t, err, "eventNamespace must start with custom followed by a dot (.)")
+	assert.Error(t, err, fmt.Sprintf(errEventNamespace, defaultNamespace))
 
 	p.EventNamespace = "custom.telegraf"
 	err = p.Init()

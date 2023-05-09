@@ -17,9 +17,12 @@ import (
 )
 
 const (
-	defaultNamespace                        = "custom"
+	defaultNamespace = "custom"
+
 	errDeveloperSecretKeyOrTelemetryKey     = "you need to provide either a DeveloperSecretKey or a TelemetryKey for playfab_insights output"
 	errNotDeveloperSecretKeyAndTelemetryKey = "you cannot provide both a DeveloperSecretKey or a TelemetryKey for playfab_insights output"
+	errTitleIdRequired                      = "titleId is a required field for PlayFab output"
+	errEventNamespace                       = "eventNamespace must start with %s followed by a dot (.)"
 )
 
 //go:embed sample.conf
@@ -44,7 +47,7 @@ func (*PlayFab) SampleConfig() string {
 // Init is for setup, and validating config
 func (p *PlayFab) Init() error {
 	if p.TitleId == "" {
-		return fmt.Errorf("titleId is a required field for playfab output")
+		return fmt.Errorf(errTitleIdRequired)
 	}
 
 	if p.DeveloperSecretKey == "" && p.TelemetryKey == "" {
@@ -58,7 +61,7 @@ func (p *PlayFab) Init() error {
 	if p.EventNamespace == "" {
 		p.EventNamespace = defaultNamespace
 	} else if !strings.HasPrefix(p.EventNamespace, fmt.Sprintf("%s.", defaultNamespace)) {
-		return fmt.Errorf("eventNamespace must start with %s followed by a dot (.)", defaultNamespace)
+		return fmt.Errorf(errEventNamespace, defaultNamespace)
 	}
 
 	if p.Debug {
@@ -75,7 +78,7 @@ func (p *PlayFab) Connect() error {
 		if p.Debug {
 			log.Println("WriteTelemetryEvents API will use the TelemetryKey")
 		}
-		p.authKey = p.TelemetryKey
+		p.authKey = ""
 		return nil
 	}
 
@@ -124,6 +127,12 @@ func (p *PlayFab) Write(metrics []telegraf.Metric) error {
 	}
 
 	settings := playfab.NewSettingsWithDefaultOptions(p.TitleId)
+	if p.TelemetryKey != "" {
+		settings.TelemetryKey = p.TelemetryKey
+	}
+
+	// authKey will have the value of EntityToken if TelemetryKey is not used
+	// if TelemetryKey is used, authKey will be empty
 	_, err := events.WriteTelemetryEvents(settings, postData, p.authKey)
 
 	if err != nil {
